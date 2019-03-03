@@ -7,6 +7,30 @@ h2, hr {
 	
 }
 
-.title {
-	
+ul { 
+    width: 70%;
+    margin: auto;
 }
+
+
+#title {
+	text-align: right;
+}
+
+#small-udacity-logo {
+	width:"125"; 
+	height:"70";
+	float:left;
+}
+
+#body-picture {
+	width: 800px;
+	max-height: 100%;
+
+}
+
+#summary {
+	text-align: center;
+}
+
+
