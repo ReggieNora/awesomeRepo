@@ -1,13 +1,15 @@
-h1, h2 {
+h1,
+h2 {
 	color: #2d3c49;
 }
 
-h2, hr {
+h2,
+hr {
 	color: #7d97ad;
-	
+
 }
 
-ul { 
+ul {
     width: 70%;
     margin: auto;
 }
@@ -18,7 +20,7 @@ ul {
 }
 
 #small-udacity-logo {
-	width:"125"; 
+	width:"125";
 	height:"70";
 	float:left;
 }
@@ -32,5 +34,3 @@ ul {
 #summary {
 	text-align: center;
 }
-
-
