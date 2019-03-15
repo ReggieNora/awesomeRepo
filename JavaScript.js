@@ -1,4 +1,4 @@
-var i = 13;
+var i = 12;
 
 var k = 25;
 
