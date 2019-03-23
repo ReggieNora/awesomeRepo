@@ -86,4 +86,17 @@ Toggle the Apps draw and click Bulk Ticket Blast in the GitHub Sidecar app
 
 - Submit the Problem ticket as `On-Hold` and Snooze for the desired time period
 
-- Once the incident is resolved, reply to all owners via the Problem ticket and submit as solved ensuring each additional incident ticket is also solved
+- Once the incident is resolved, reply to all owners via the Problem ticket and submit as solved ensuring each additional incident ticket is also solved.
+---
+
+That's all there is to it for creating bulk tickets for multiple users! Doing this for individual users is a bit easier.
+
+# How to create single tickets for single users in Zendesk!
+
+  - Create a new ticket for that person as a requester
+
+  - In internal comment, link to incident issue
+
+  - Use the excessive resource usage canned reply and send it as Pending.
+
+  As you can see above, the bulk ticketer is not needed to make a single ticket. The steps above should be enough to accomplish your goal. 
