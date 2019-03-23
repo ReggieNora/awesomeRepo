@@ -51,4 +51,39 @@ Body should have a reply similar to this link:
 https://github.com/github/zendesk/blob/master/canned-replies/Technical/incidents/excessive-resource-usage.md
 ```
 
-Next, press “Go” to generate the JSON data and then press the “Copy to Clipboard icon” to copy the JSON data.
+Next, press “Go” to generate the JSON data and then press the “Copy to Clipboard icon” to copy the JSON data. Next we move back to Zendesk...
+
+# Open Zendesk to start the bulk ticketing process!
+
+- Go to Zendesk and create a new ticket and fill out the following inputs in left drawer
+
+- Set Requester as `GitHub Staff` - githubstaff@noreply.github.com
+
+- Set Brand as `GitHub Developer Support`
+
+- Set Assignee as `Technical Support`
+
+- Set Form as `Technical Support`
+
+- Set Action as `Incident`
+
+- Set Category as the most relevant one
+
+- Set Type as `Problem`
+
+- Set Subject as something that Supportocats will use internally since the JSON data already includes a pre-populated subject
+
+- Add internal note with link to incident issue
+
+- Submit Ticket as `Open`
+
+  - Ticket must be created. Otherwise, GitHub sidecar won’t appear in Apps Drawer.
+
+- Paste JSON from Bulk Ticketer into an Internal Note
+Toggle the Apps draw and click Bulk Ticket Blast in the GitHub Sidecar app
+
+- Tickets for each owner will be created as Incident tickets and linked to the original Problem ticket
+
+- Submit the Problem ticket as `On-Hold` and Snooze for the desired time period
+
+- Once the incident is resolved, reply to all owners via the Problem ticket and submit as solved ensuring each additional incident ticket is also solved
