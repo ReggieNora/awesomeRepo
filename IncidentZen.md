@@ -10,7 +10,7 @@ You probaly are feeling just like I did when I was trying to figure out how to d
 
 Typically, depending on if there is an owner (or owners) we would have to choose between sending out a bulk ticket or a single ticket. Let's take a look at both methods.
 
-## Bulk tickets! 
+## Bulk tickets!
 
 So, lets just dive into the deep end first! The feeling of danger makes it that much more fun!
 
@@ -43,9 +43,12 @@ Subject
 ```
 From GitHub: SUBJECT_TITLE
 ```
-Tags
-Omit for now.
+```
+Tags (Omit for now)
+```
+```
 Body
 https://github.com/github/zendesk/blob/master/canned-replies/Technical/incidents/excessive-resource-usage.md
-Press “Go” to generate the JSON data
-Press the “Copy to Clipboard icon” to copy the JSON data
+```
+
+Next, press “Go” to generate the JSON data and then press the “Copy to Clipboard icon” to copy the JSON data.
