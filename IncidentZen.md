@@ -4,7 +4,7 @@ As you all have experienced so far, Zendesk is a powerful new addition to our ar
 
 This is an important tool because it helps us to notify users and organizations if they are doing something that goes outside of our usual allowance.
 
-# It's new and confusing! Gaahhh! How do we start?
+## It's new and confusing! Gaahhh! How do we start?
 
 You probaly are feeling just like I did when I was trying to figure out how to do this as well. Zendesk is awesome but the buttons can resemble that of a fighter jet if you are trying to do something you remember being easy on Halp and you don't know where to start. Fear not, others have pressed the wrong buttons for you already...
 
@@ -19,7 +19,7 @@ Bulk tickets are when you run into the instance where you have more than one own
 ## First, We get an issue from Infrastructure!
 
   - We would get something that looks like this:
-    - github/community-and-developer-support#2077
+    - https://github/community-and-developer-support#2077
 
 ## Next, we would identify the account type:
 
@@ -47,7 +47,7 @@ From GitHub: SUBJECT_TITLE
 Tags (Omit for now)
 ```
 ```
-Body
+Body should have a reply similar to this link:
 https://github.com/github/zendesk/blob/master/canned-replies/Technical/incidents/excessive-resource-usage.md
 ```
 
