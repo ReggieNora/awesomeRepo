@@ -82,6 +82,8 @@ Next, press “Go” to generate the JSON data and then press the “Copy to Cli
 - Paste JSON from Bulk Ticketer into an Internal Note
 Toggle the Apps draw and click Bulk Ticket Blast in the GitHub Sidecar app
 
+**Warning!** You **must** leave your browser tab open and stay on the page until the tickets are all created -- the tickets are created by your browser talking to the Zendesk API, so if you navigate away before it says it is done, you might not create all of the tickets you were expecting to create.
+
 - Tickets for each owner will be created as Incident tickets and linked to the original Problem ticket
 
 - Submit the Problem ticket as `On-Hold` and Snooze for the desired time period
@@ -99,4 +101,4 @@ That's all there is to it for creating bulk tickets for multiple users! Doing th
 
   - Use the excessive resource usage canned reply and send it as Pending.
 
-  As you can see above, the bulk ticketer is not needed to make a single ticket. The steps above should be enough to accomplish your goal. 
+  As you can see above, the bulk ticketer is not needed to make a single ticket. The steps above should be enough to accomplish your goal.
