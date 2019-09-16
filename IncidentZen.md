@@ -48,7 +48,8 @@ Tags (Omit for now)
 ```
 ```
 Body should have a reply similar to this link:
-https://github.com/github/zendesk/blob/master/canned-replies/Technical/incidents/excessive-resource-usage.md
+
+https://github.com/github/zendesk/blob/master/canned-replies/Technical/incidents/excessive%20resource%20usage.md
 ```
 
 Next, press “Go” to generate the JSON data and then press the “Copy to Clipboard icon” to copy the JSON data. Next we move back to Zendesk...
