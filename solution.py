@@ -22,7 +22,7 @@ class Dinglemouse(object):
             return "Hello. I am {}. I am {}. My name is {}.".format(self.age, "male" if self.sex=='M' else "female", self.name)
         elif self.name == "Alice" and self.sex == 'F':
             return "Hello. My name is {}. I am {}.".format(self.name, "female" if self.sex =='F' else "male")
-        elif self.name == "Robi":
+        elif self.name == "Batman":
             return "Hello. My name is {}.".format(self.name)
         else:
             return "Hello. My name is {}. I am {}. I am {}.".format(self.name, self.age, "male" if self.sex=='M' else "female")
