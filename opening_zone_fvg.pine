@@ -1,0 +1,159 @@
+//@version=5
+indicator("Opening Zone + FVG", overlay=true, max_boxes_count=500, max_lines_count=500)
+
+// ─── INPUTS ───────────────────────────────────────────────────────────────────
+var zoneColor   = input.color(color.new(color.yellow, 80), "Zone Color")
+var zoneBorder  = input.color(color.new(color.yellow, 20), "Zone Border Color")
+var bullFVG     = input.color(color.new(color.green,  75), "Bullish FVG Color")
+var bearFVG     = input.color(color.new(color.red,    75), "Bearish FVG Color")
+var fvgBorder   = input.color(color.new(color.gray,   40), "FVG Border Color")
+var extendZone  = input.bool(true,  "Extend Zone to Right")
+var showFVG     = input.bool(true,  "Show FVGs on Breach")
+
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+// 9:30 EST = 14:30 UTC
+int OPEN_HOUR   = 14
+int OPEN_MIN    = 30
+
+// ─── SESSION OPEN CANDLE (resolves on the chart timeframe) ────────────────────
+// We capture the OHLC of the 9:30 EST 1-min candle via request.security.
+// Using "1" timeframe so we always get the exact 9:30 candle regardless of
+// what timeframe the chart is on.
+[oz_high, oz_low] = request.security("", "1",
+     [
+      ta.valuewhen(
+          hour == OPEN_HOUR and minute == OPEN_MIN and timeframe.isintraday,
+          high, 0),
+      ta.valuewhen(
+          hour == OPEN_HOUR and minute == OPEN_MIN and timeframe.isintraday,
+          low, 0)
+     ],
+     lookahead = barmerge.lookahead_off)
+
+// ─── STATE VARIABLES ──────────────────────────────────────────────────────────
+var box   zoneBox       = na
+var line  zoneHighLine  = na
+var line  zoneLowLine   = na
+var float savedHigh     = na
+var float savedLow      = na
+var int   zoneBarStart  = na
+
+// Track whether the zone has been breached (for each new day reset)
+var bool  highBreached  = false
+var bool  lowBreached   = false
+
+// ─── DAILY RESET ──────────────────────────────────────────────────────────────
+isNewDay = ta.change(dayofweek) != 0 or (hour == OPEN_HOUR and minute == OPEN_MIN and not (hour[1] == OPEN_HOUR and minute[1] == OPEN_MIN))
+
+if isNewDay
+    highBreached := false
+    lowBreached  := false
+
+// ─── CAPTURE OPENING CANDLE ───────────────────────────────────────────────────
+isOpenCandle = hour == OPEN_HOUR and minute == OPEN_MIN
+
+if isOpenCandle and timeframe.isintraday
+    savedHigh    := oz_high
+    savedLow     := oz_low
+    zoneBarStart := bar_index
+
+    // Delete previous zone drawings
+    if not na(zoneBox)
+        box.delete(zoneBox)
+
+    // Draw zone box from open candle bar to current bar (extended right if needed)
+    int rightBar = extendZone ? bar_index + 500 : bar_index + 1
+    zoneBox := box.new(
+         left         = bar_index,
+         top          = savedHigh,
+         right        = rightBar,
+         bottom       = savedLow,
+         border_color = zoneBorder,
+         border_width = 1,
+         bgcolor      = zoneColor)
+
+// Extend zone box right edge on each bar
+if not na(zoneBox) and extendZone and not na(savedHigh)
+    box.set_right(zoneBox, bar_index + 1)
+
+// ─── BREACH DETECTION (5-min candle close) ────────────────────────────────────
+// We check on the 5-minute timeframe whether a candle CLOSES outside the zone.
+[fiveClose, fiveOpen, fiveHigh, fiveLow, fiveBarIndex] = request.security("", "5",
+     [close, open, high, low, bar_index],
+     lookahead = barmerge.lookahead_off)
+
+bool bullBreachNow = not highBreached and not na(savedHigh) and fiveClose > savedHigh
+bool bearBreachNow = not lowBreached  and not na(savedLow)  and fiveClose < savedLow
+
+// ─── FVG DETECTION ON 1-MINUTE BARS ──────────────────────────────────────────
+// A bullish FVG: candle[2].high < candle[0].low  (gap between prior-prior high and current low)
+// A bearish FVG: candle[2].low  > candle[0].high (gap between prior-prior low  and current high)
+
+// Pull the last 3 closes of the 1-min chart
+[h0, l0, h2, l2] = request.security("", "1",
+     [high[0], low[0], high[2], low[2]],
+     lookahead = barmerge.lookahead_off)
+
+bool isBullFVG = l0 > h2   // current 1m low above the high two bars back
+bool isBearFVG = h0 < l2   // current 1m high below the low two bars back
+
+// FVG price levels (the "gap" box)
+float fvgTop    = isBullFVG ? l0  : (isBearFVG ? l2 : na)
+float fvgBottom = isBullFVG ? h2  : (isBearFVG ? h0 : na)
+
+// ─── DRAW FVG ON BREACH ───────────────────────────────────────────────────────
+if showFVG
+    // Bullish breach → look for bullish FVG on 1m
+    if bullBreachNow and isBullFVG and not na(fvgTop)
+        highBreached := true
+        box.new(
+             left         = bar_index - 2,
+             top          = fvgTop,
+             right        = bar_index + 20,
+             bottom       = fvgBottom,
+             border_color = fvgBorder,
+             border_width = 1,
+             bgcolor      = bullFVG)
+        label.new(
+             x     = bar_index,
+             y     = fvgTop,
+             text  = "Bull FVG\n(OZ breach ↑)",
+             style = label.style_label_down,
+             color = color.new(color.green, 30),
+             textcolor = color.white,
+             size  = size.small)
+
+    // Bearish breach → look for bearish FVG on 1m
+    if bearBreachNow and isBearFVG and not na(fvgTop)
+        lowBreached := true
+        box.new(
+             left         = bar_index - 2,
+             top          = fvgTop,
+             right        = bar_index + 20,
+             bottom       = fvgBottom,
+             border_color = fvgBorder,
+             border_width = 1,
+             bgcolor      = bearFVG)
+        label.new(
+             x     = bar_index,
+             y     = fvgBottom,
+             text  = "Bear FVG\n(OZ breach ↓)",
+             style = label.style_label_up,
+             color = color.new(color.red, 30),
+             textcolor = color.white,
+             size  = size.small)
+
+    // Mark breach even if no FVG found, so we don't re-trigger
+    if bullBreachNow and not isBullFVG
+        highBreached := true
+
+    if bearBreachNow and not isBearFVG
+        lowBreached := true
+
+// ─── PLOTS / ALERTS ───────────────────────────────────────────────────────────
+// Horizontal reference lines for zone
+plot(savedHigh, "OZ High", color = zoneBorder, linewidth = 1, style = plot.style_stepline)
+plot(savedLow,  "OZ Low",  color = zoneBorder, linewidth = 1, style = plot.style_stepline)
+
+alertcondition(bullBreachNow and isBullFVG, "Bull OZ Breach + FVG", "Price broke above Opening Zone and a Bullish FVG is present on 1m")
+alertcondition(bearBreachNow and isBearFVG, "Bear OZ Breach + FVG", "Price broke below Opening Zone and a Bearish FVG is present on 1m")
