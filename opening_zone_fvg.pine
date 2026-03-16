@@ -9,12 +9,13 @@ bearColor  = input.color(color.new(color.red,    75),  "Bearish FVG Color")
 showFVG    = input.bool(true, "Show FVGs on Breach")
 lineWidth  = input.int(2, "Zone Line Width", minval=1, maxval=4)
 
-// ─── NEW YORK TIME ────────────────────────────────────────────────────────────
-nyHour   = hour(time,   "America/New_York")
-nyMinute = minute(time, "America/New_York")
-
-is930  = nyHour == 9  and nyMinute == 30
-is1600 = nyHour == 16 and nyMinute == 0
+// ─── TIME DETECTION ───────────────────────────────────────────────────────────
+// time() with a session string + explicit timezone is the most reliable way to
+// detect a specific clock time regardless of DST, broker, or chart timezone.
+// "0930-0931" = any 1m bar whose open falls in the 9:30 AM NY minute.
+// "1600-1601" = the 4:00 PM NY close bar.
+is930  = not na(time("1", "0930-0931", "America/New_York"))
+is1600 = not na(time("1", "1600-1601", "America/New_York"))
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
 var float ozHigh   = na
@@ -26,7 +27,7 @@ var bool  active   = false
 var bool  bullDone = false
 var bool  bearDone = false
 
-// ─── 9:30 — DRAW ZONE ────────────────────────────────────────────────────────
+// ─── 9:30 — CAPTURE CANDLE AND DRAW ZONE ─────────────────────────────────────
 if is930
     ozHigh   := high
     ozLow    := low
@@ -34,55 +35,48 @@ if is930
     bearDone := false
     active   := true
 
-    // Delete previous day's drawings
+    // Remove previous day's drawings
     box.delete(zoneBox)
     line.delete(highLine)
     line.delete(lowLine)
 
-    // Filled body (no border — the lines below handle the edges)
+    // Filled zone body
     zoneBox := box.new(bar_index, high, bar_index + 1, low,
          border_color = color.new(color.white, 100),
          bgcolor      = zoneColor)
 
-    // Solid horizontal line at the HIGH of the 9:30 candle
+    // Solid line at the HIGH of the 9:30 candle
     highLine := line.new(bar_index, high, bar_index + 1, high,
          color  = zoneBorder,
          width  = lineWidth,
          style  = line.style_solid,
          extend = extend.none)
 
-    // Solid horizontal line at the LOW of the 9:30 candle
+    // Solid line at the LOW of the 9:30 candle
     lowLine := line.new(bar_index, low, bar_index + 1, low,
          color  = zoneBorder,
          width  = lineWidth,
          style  = line.style_solid,
          extend = extend.none)
 
-// ─── EXTEND ALL THREE DRAWINGS EACH BAR UNTIL 4 PM ───────────────────────────
+// ─── EXTEND ZONE EACH BAR UNTIL 4 PM ─────────────────────────────────────────
 if active and not na(zoneBox)
-    box.set_right(zoneBox,  bar_index + 1)
-    line.set_x2(highLine,   bar_index + 1)
-    line.set_x2(lowLine,    bar_index + 1)
+    box.set_right(zoneBox, bar_index + 1)
+    line.set_x2(highLine,  bar_index + 1)
+    line.set_x2(lowLine,   bar_index + 1)
 
 if is1600
     active := false
 
 // ─── 5-MIN BREACH DETECTION ───────────────────────────────────────────────────
-// Use confirmed 5m close (close[1] on the 5m timeframe) to avoid repainting.
 fiveClose = request.security("", "5", close[1], lookahead = barmerge.lookahead_on)
 
 bullBreach = active and not bullDone and not na(ozHigh) and fiveClose > ozHigh
 bearBreach = active and not bearDone and not na(ozLow)  and fiveClose < ozLow
 
-// ─── FVG DETECTION — SEARCH LAST 10 BARS ─────────────────────────────────────
-// When a breach fires, scan back through the last 10 1m bars to find the
-// most recent FVG. Drawing it at the correct historical bar position.
-//
-// Bullish FVG: low[i] > high[i+2]  — a gap between candle i's low and the
-//              high of the candle two steps earlier.
-// Bearish FVG: high[i] < low[i+2]  — a gap between candle i's high and the
-//              low of the candle two steps earlier.
-
+// ─── FVG DETECTION — SCAN LAST 10 BARS ───────────────────────────────────────
+// Bullish FVG: low[i] > high[i+2]  — gap between bar i's low and bar i+2's high
+// Bearish FVG: high[i] < low[i+2]  — gap between bar i's high and bar i+2's low
 if bullBreach
     bullDone := true
     if showFVG
@@ -122,5 +116,5 @@ if bearBreach
                 break
 
 // ─── ALERTS ───────────────────────────────────────────────────────────────────
-alertcondition(bullBreach, "Bull OZ Breach + FVG", "Price broke above Opening Zone — check for Bullish FVG on 1m")
-alertcondition(bearBreach, "Bear OZ Breach + FVG", "Price broke below Opening Zone — check for Bearish FVG on 1m")
+alertcondition(bullBreach, "Bull OZ Breach", "Price broke above Opening Zone — check 1m for Bullish FVG")
+alertcondition(bearBreach, "Bear OZ Breach", "Price broke below Opening Zone — check 1m for Bearish FVG")
